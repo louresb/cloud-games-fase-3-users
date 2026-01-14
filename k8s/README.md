@@ -156,7 +156,7 @@ A seguir estão as descrições dos manifestos relacionados ao serviço `users` 
   ## Logs de um pod específico:
   kubectl logs <nome-do-pod> -n fcg-apps
   ## Logs de um deployment (pega o pod automaticamente):
-  kubectl logs deployment/<nome-do-deployment> -n fcg-apps
+  kubectl logs deployment/users-deployment -n fcg-apps
   ## Logs em tempo real:
   kubectl logs -f <nome-do-pod> -n fcg-apps
   ## Últimas 100 linhas:
@@ -167,13 +167,13 @@ A seguir estão as descrições dos manifestos relacionados ao serviço `users` 
   ```bash
   ## Acessar um pod específico:
   kubectl exec -it <nome-do-pod> -n fcg-apps -- /bin/bash
-  ## Acessar um deployment (pega o pod automaticamente):
-  kubectl exec -it deployment/<nome-do-deployment> -n fcg-apps -- /bin/bash
+  ## Acessar pelo deployment (pega o pod automaticamente):
+  kubectl exec -it deployment/users-deployment -n fcg-apps -- /bin/bash
   ```
 
 - Resetar o deployment (força reinício):
   ```bash
-  kubectl rollout restart deployment/<nome-do-deployment> -n fcg-apps
+  kubectl rollout restart deployment/users-deployment -n fcg-apps
   ```
 
 - Remover namespace (remove todos os recursos dentro do namespace):
