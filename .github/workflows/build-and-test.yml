@@ -8,12 +8,12 @@ on:
       - '**/*.md'
   pull_request:
     branches: [ main ]
-    paths-ignore: 
+    paths-ignore:
       - 'k8s/**'
       - '**/*.md'
 
 permissions:
-  contents:  read
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,12 +25,12 @@ env:
 
 jobs:
   build-and-test:
-    name:  Build & Test (.NET 8)
+    name: Build & Test (.NET 8)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses:  actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Setup .NET 8.x
         uses: actions/setup-dotnet@v4
@@ -40,8 +40,8 @@ jobs:
       - name: Restore tools
         run: dotnet tool restore
 
-      - name:  Restore dependencies
-        run: dotnet restore ./cloud-games-fase-2-users. sln
+      - name: Restore dependencies
+        run: dotnet restore ./cloud-games-fase-2-users.sln
 
       - name: Build (Release)
         run: dotnet build ./cloud-games-fase-2-users.sln --configuration Release --no-restore
@@ -57,9 +57,9 @@ jobs:
       - name: Upload test results & coverage
         if: always()
         uses: actions/upload-artifact@v4
-        with: 
+        with:
           name: test-artifacts
-          if-no-files-found:  ignore
+          if-no-files-found: ignore
           path: |
             **/TestResults/**/*.trx
             **/TestResults/**/coverage.cobertura.xml
