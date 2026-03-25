@@ -39,10 +39,10 @@ public static class DependencyInjection
                 // Pega a configuração injetada
                 var configuration = context.GetRequiredService<IConfiguration>();
 
-                // Lê as variáveis (que vêm do docker-compose)
-                var rabbitHost = configuration["RabbitMq:HostName"] ?? "localhost";
-                var rabbitUser = configuration["RabbitMq:UserName"] ?? "guest";
-                var rabbitPass = configuration["RabbitMq:Password"] ?? "guest";
+                // Lê as variáveis obrigatórias de RabbitMQ
+                var rabbitHost = configuration["RabbitMq:HostName"] ?? throw new InvalidOperationException("RabbitMq host name not configured.");
+                var rabbitUser = configuration["RabbitMq:UserName"] ?? throw new InvalidOperationException("RabbitMq user name not configured.");
+                var rabbitPass = configuration["RabbitMq:Password"] ?? throw new InvalidOperationException("RabbitMq password not configured.");
 
                 cfg.Host(rabbitHost, "/", h =>
                 {
