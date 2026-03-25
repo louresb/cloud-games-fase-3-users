@@ -22,6 +22,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var runDbMigrationsOnStartup = string.Equals(
+	builder.Configuration["RUN_DB_MIGRATIONS_ON_STARTUP"],
+	"true",
+	StringComparison.OrdinalIgnoreCase);
+
+var validateAdminUserOnStartup = builder.Environment.IsDevelopment() && runDbMigrationsOnStartup;
+
 // 1. Configuração do Serilog (Console + Loki)
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -52,14 +59,16 @@ builder.Services.AddOptions<JwtOptions>()
 	}, "JwtOptions validation")
 	.ValidateOnStart();
 
-builder.Services.AddOptions<AdminUserOptions>()
+var adminUserOptionsBuilder = builder.Services.AddOptions<AdminUserOptions>()
 	.Bind(builder.Configuration.GetSection("AdminUser"))
 	.Validate(o =>
 	{
 		o.Validate();
 		return true;
-	}, "AdminUserOptions validation")
-	.ValidateOnStart();
+	}, "AdminUserOptions validation");
+
+if (validateAdminUserOnStartup)
+	adminUserOptionsBuilder.ValidateOnStart();
 
 // Add services to the container.
 builder.Services.AddScoped<IUserService, UserService>();
@@ -152,8 +161,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 // ---- Migrate + Seed (dev) ----
-using (var scope = app.Services.CreateScope())
+if (runDbMigrationsOnStartup)
 {
+	using var scope = app.Services.CreateScope();
 	var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 	await db.Database.MigrateAsync();
 
@@ -164,6 +174,10 @@ using (var scope = app.Services.CreateScope())
 		ctsUserSeeder.CancelAfter(TimeSpan.FromSeconds(30));
 		await userSeeder.SeedAsync(ctsUserSeeder.Token);
 	}
+}
+else
+{
+	app.Logger.LogInformation("Database migration on startup is disabled. Set RUN_DB_MIGRATIONS_ON_STARTUP=true to enable it.");
 }
 
 // Configure the HTTP request pipeline.
